@@ -11,4 +11,4 @@ struct Sphere {
   double radius = 0.0;
 };
 
-std::optional<Point3d> intersect(const Ray& ray, const Sphere& sphere);
+std::optional<double> intersect(const Ray& ray, const Sphere& sphere);

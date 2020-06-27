@@ -51,10 +51,11 @@ bool write_png(const char* file_name, const View& image) {
   if (!png.is_ok()) return false;
 
   std::vector<png_byte> row(image.width * 3);
-  for (uint32_t y = 0; y < image.height; ++y) {
+  // TODO: think how to make it without reversing iteration
+  for (uint32_t y = image.height; y > 0; --y) {
     for (uint32_t x = 0; x < image.width; ++x) {
       const auto i = x * 3;
-      const auto& pixel = image(x, y);
+      const auto& pixel = image(x, y - 1);
       row[i + 0] = pixel.r;
       row[i + 1] = pixel.g;
       row[i + 2] = pixel.b;

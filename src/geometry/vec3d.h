@@ -11,4 +11,5 @@ struct Vec3d {
 
 double operator%(const Vec3d& a, const Vec3d& b);
 Vec3d operator*(const Vec3d& a, double b);
+Vec3d operator*(double a, const Vec3d& b);
 Vec3d operator/(const Vec3d& a, double b);

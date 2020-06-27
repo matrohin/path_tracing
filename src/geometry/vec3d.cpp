@@ -14,6 +14,9 @@ double operator%(const Vec3d& a, const Vec3d& b) {
 Vec3d operator*(const Vec3d& a, double b) {
   return {a.x * b, a.y * b, a.z * b};
 }
+Vec3d operator*(double a, const Vec3d& b) {
+  return b * a;
+}
 Vec3d operator/(const Vec3d& a, double b) {
   return a * (1 / b);
 }

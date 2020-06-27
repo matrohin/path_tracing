@@ -5,7 +5,7 @@
 #include <cmath>
 #include <iostream>
 
-std::optional<Point3d> intersect(const Ray& ray, const Sphere& sphere) {
+std::optional<double> intersect(const Ray& ray, const Sphere& sphere) {
   const auto l = sphere.center - ray.start;
   const auto tc = l % ray.direction;
   if (tc < 0.) return {};
@@ -16,10 +16,10 @@ std::optional<Point3d> intersect(const Ray& ray, const Sphere& sphere) {
 
   const auto delta = sqrt(r2 - k2);
   const auto t0 = tc - delta;
-  if (t0 > 0.) return ray.at(t0);
+  if (t0 > 0.) return t0;
 
   const auto t1 = tc + delta;
-  if (t1 > 0.) return ray.at(t1);
+  if (t1 > 0.) return t1;
 
   return {};
 }
