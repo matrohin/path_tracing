@@ -1,5 +1,6 @@
 [requires]
 CLI11/1.9.1@cliutils/stable
+libpng/1.6.37@bincrafters/stable
 
 [generators]
 cmake
