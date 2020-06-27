@@ -1,6 +1,7 @@
 #include "png_utils.h"
 
 #include <png.h>
+#include <cmath>
 #include <cstdio>
 #include <memory>
 #include <optional>
@@ -39,6 +40,8 @@ PngStruct::PngStruct(FILE* file, uint32_t width, uint32_t height) {
   png_write_info(png_ptr, info_ptr);
 }
 
+png_byte to_byte(double c) { return std::min(0xff, static_cast<int>(std::round(c * 0xff))); }
+
 }  // unnamed namespace
 
 namespace png_utils {
@@ -56,9 +59,9 @@ bool write_png(const char* file_name, const View& image) {
     for (uint32_t x = 0; x < image.width; ++x) {
       const auto i = x * 3;
       const auto& pixel = image(x, y - 1);
-      row[i + 0] = pixel.r;
-      row[i + 1] = pixel.g;
-      row[i + 2] = pixel.b;
+      row[i + 0] = to_byte(pixel.r);
+      row[i + 1] = to_byte(pixel.g);
+      row[i + 2] = to_byte(pixel.b);
     }
     auto p = row.data();
     png_write_rows(png.png_ptr, &p, 1);

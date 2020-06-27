@@ -3,5 +3,6 @@
 #include "view/color.h"
 
 struct Material {
-  Color color;
+  Color diffuse = {};
+  Color emmitance = {};
 };

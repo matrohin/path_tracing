@@ -1,13 +1,18 @@
 #pragma once
 
-#include <cstdint>
-
 struct Color {
-  uint8_t r = 0;
-  uint8_t g = 0;
-  uint8_t b = 0;
+  double r = 0.;
+  double g = 0.;
+  double b = 0.;
 };
 
+Color operator*(const Color& a, double b);
+Color operator*(double a, const Color& b);
+Color operator*(const Color& a, const Color& b);
+Color operator+(const Color& a, const Color& b);
+
 inline constexpr Color BLACK = {};
-inline constexpr Color GREEN = {0, 0xff, 0};
-inline constexpr Color RED = {0xff, 0, 0};
+inline constexpr Color WHITE = {1., 1., 1.};
+inline constexpr Color GREEN = {0., 1., 0.};
+inline constexpr Color RED = {1., 0., 0.};
+
