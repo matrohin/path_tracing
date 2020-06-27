@@ -1,2 +1,6 @@
 add_executable(path_tracing main.cpp)
-target_link_libraries(path_tracing PRIVATE project_options project_warnings ${CONAN_LIBS})
+
+add_subdirectory(geometry)
+add_subdirectory(objects)
+
+target_link_libraries(path_tracing PRIVATE project_options project_warnings geometry objects ${CONAN_LIBS})
