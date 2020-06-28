@@ -15,5 +15,5 @@ struct Camera {
   Vec3d right = {1., 0., 0.};
   Vec3d up = {0., 1., 0.};
 
-  Ray create_ray_from_pixel(uint32_t x, uint32_t y);
+  Ray create_ray_from_pixel(uint32_t x, uint32_t y) const;
 };

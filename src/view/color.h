@@ -4,6 +4,8 @@ struct Color {
   double r = 0.;
   double g = 0.;
   double b = 0.;
+  Color& operator/=(double o);
+  Color& operator+=(const Color& o);
 };
 
 Color operator*(const Color& a, double b);
