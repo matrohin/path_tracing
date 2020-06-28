@@ -39,7 +39,7 @@ Color shoot_ray_impl(const Scene& scene, Ray ray, std::mt19937& engine,
   const auto& mat = scene.materials[idx];
   const auto incoming = shoot_ray_impl(scene, {p, new_dir}, engine, depth + 1);
   const auto cos_theta = new_dir % normal;
-  return mat.emmitance + mat.diffuse * cos_theta * incoming * 2 * M_PI;
+  return mat.emmitance + mat.diffuse * cos_theta * incoming;
 }
 
 }  // unnamed namespace

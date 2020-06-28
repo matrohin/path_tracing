@@ -1,6 +1,7 @@
 #include "png_utils.h"
 
 #include <png.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <memory>
@@ -40,7 +41,10 @@ PngStruct::PngStruct(FILE* file, uint32_t width, uint32_t height) {
   png_write_info(png_ptr, info_ptr);
 }
 
-png_byte to_byte(double c) { return std::min(0xff, static_cast<int>(std::round(c * 0xff))); }
+// Applies gamma correction
+png_byte to_byte(double c) {
+  return std::lround(std::pow(std::clamp(c, 0.0, 1.0), 1. / 2.2) * 0xff);
+}
 
 }  // unnamed namespace
 
