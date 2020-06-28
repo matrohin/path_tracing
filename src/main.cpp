@@ -63,17 +63,9 @@ bool is_ready(const std::future<T>& f) {
   return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
 }
 
-View generate_image() {
-  View view{500, 500};
-
-  const Camera camera{Point3d{50., 50., -100.},
-                      Vec3d{0., 0., 1.},
-                      Vec3d{0., 1., 0.},
-                      0.5135,
-                      1.,
-                      view.width,
-                      view.height};
-  const Scene scene = build_scene();
+View generate_image(const Camera& camera, const Scene& scene, uint32_t w,
+                    uint32_t h) {
+  View view{w, h};
 
   std::vector<std::pair<uint32_t, std::future<ViewRow>>> futures;
   const auto max_threads = std::thread::hardware_concurrency();
@@ -107,14 +99,28 @@ View generate_image() {
 int main(int argc, char** argv) {
   CLI::App app{"Path Tracing Toy Project"};
 
+  uint32_t width;
+  uint32_t height;
   std::string file_name;
-  app.add_option("-f", file_name, "Output png file");
+  app.set_help_flag("--help", "");
+  app.add_option("-f,--file", file_name, "Output png file")->required();
+  app.add_option("-w,--width", width, "Output file width")->default_val(640);
+  app.add_option("-h,--height", height, "Output file height")->default_val(480);
 
   CLI11_PARSE(app, argc, argv);
 
+  const Camera camera{Point3d{50., 50., -100.},
+                      Vec3d{0., 0., 1.},
+                      Vec3d{0., 1., 0.},
+                      0.5135,
+                      1.,
+                      width,
+                      height};
+  const Scene scene = build_scene();
+
   const auto start = std::chrono::steady_clock::now();
 
-  const auto image = generate_image();
+  const auto image = generate_image(camera, scene, width, height);
 
   const auto diff =
       std::chrono::duration<double>{std::chrono::steady_clock::now() - start};
