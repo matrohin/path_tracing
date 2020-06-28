@@ -109,6 +109,7 @@ int main(int argc, char** argv) {
 
   CLI11_PARSE(app, argc, argv);
 
+  const auto start = std::chrono::steady_clock::now();
   const Camera camera{Point3d{50., 50., -100.},
                       Vec3d{0., 0., 1.},
                       Vec3d{0., 1., 0.},
@@ -117,16 +118,22 @@ int main(int argc, char** argv) {
                       width,
                       height};
   const Scene scene = build_scene();
-
-  const auto start = std::chrono::steady_clock::now();
+  const auto end_scene = std::chrono::steady_clock::now();
 
   const auto image = generate_image(camera, scene, width, height);
-
-  const auto diff =
-      std::chrono::duration<double>{std::chrono::steady_clock::now() - start};
-  std::cout << "Image generated in " << diff.count() << "s.\n";
+  const auto end_image = std::chrono::steady_clock::now();
 
   png_utils::write_png(file_name.c_str(), image);
+  const auto end_full = std::chrono::steady_clock::now();
 
+  const auto get_diff = [](const auto& s, const auto& e) {
+    return std::chrono::duration<double>(e - s).count();
+  };
+  std::cout << "Scene build: " << get_diff(start, end_scene) << "s.\n";
+  std::cout << "Image generation: " << get_diff(end_scene, end_image) << "s.\n";
+  std::cout << "Png image creation: " << get_diff(end_image, end_full)
+            << "s.\n";
+  std::cout << "Full program execution: " << get_diff(start, end_full)
+            << "s.\n";
   return 0;
 }
