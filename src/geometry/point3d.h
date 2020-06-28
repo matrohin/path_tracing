@@ -9,4 +9,5 @@ struct Point3d {
 };
 
 Point3d operator+(const Point3d& a, const Vec3d& b);
+Point3d operator-(const Point3d& a, const Vec3d& b);
 Vec3d operator-(const Point3d& a, const Point3d& b);

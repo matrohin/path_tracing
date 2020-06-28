@@ -12,8 +12,11 @@ using Materials = std::vector<Material>;
 using Objects = std::vector<Sphere>;
 
 struct Scene {
-  Color shoot_ray(const Ray& ray, std::mt19937& engine) const;
-
   Objects objects;
   Materials materials;
+
+  static Scene with_capacity(size_t cap);
+
+  Color shoot_ray(const Ray& ray, std::mt19937& engine) const;
+  void add_sphere(const Sphere& s, const Material& m);
 };

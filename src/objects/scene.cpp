@@ -44,6 +44,18 @@ Color shoot_ray_impl(const Scene& scene, Ray ray, std::mt19937& engine,
 
 }  // unnamed namespace
 
+Scene Scene::with_capacity(size_t cap) {
+  Scene res;
+  res.objects.reserve(cap);
+  res.materials.reserve(cap);
+  return res;
+}
+
 Color Scene::shoot_ray(const Ray& ray, std::mt19937& engine) const {
   return shoot_ray_impl(*this, ray, engine, 0);
+}
+
+void Scene::add_sphere(const Sphere& s, const Material& m) {
+  objects.push_back(s);
+  materials.push_back(m);
 }
