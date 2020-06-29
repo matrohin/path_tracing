@@ -45,8 +45,7 @@ Scene build_scene() {
 
 constexpr uint32_t samples_num = 100;
 ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
-                     uint32_t width, uint32_t seed) {
-  std::mt19937 rng_engine{seed};
+                     uint32_t width, std::mt19937& rng_engine) {
   ViewRow row(width);
   for (uint32_t x = 0; x < width; ++x) {
     for (uint32_t i = 0; i < samples_num; ++i) {
@@ -58,41 +57,40 @@ ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
   return row;
 }
 
-template <typename T>
-bool is_ready(const std::future<T>& f) {
-  return f.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+void generate_multiple_rows(const Scene& scene, const Camera& camera,
+                            View& view, uint32_t first, uint32_t last,
+                            uint32_t seed) {
+  std::mt19937 rng_engine{seed};
+  for (auto y = first; y < last; ++y) {
+    view.apply_row(generate_row(scene, camera, y, view.width, rng_engine),
+                    y);
+  }
 }
 
-View generate_image(const Camera& camera, const Scene& scene, uint32_t w,
+View generate_image(const Scene& scene, const Camera& camera, uint32_t w,
                     uint32_t h) {
   View view{w, h};
 
-  std::vector<std::pair<uint32_t, std::future<ViewRow>>> futures;
   const auto max_threads = std::thread::hardware_concurrency();
   std::cout << "Number of threads: " << max_threads << '\n';
 
-  uint32_t y = 0;
+  const uint32_t batch_size = view.height / max_threads;
+  std::vector<std::thread> threads;
+  threads.reserve(max_threads - 1);
   uint32_t seed = 0;
-  const auto max_y = view.height;
-  while (y < max_y) {
-    while (futures.size() < max_threads) {
-      futures.emplace_back(y, std::async(std::launch::async, generate_row,
-                                         scene, camera, y, view.width, seed));
-      ++y;
-      ++seed;
-    }
-    for (auto it = futures.begin(); it != futures.end();) {
-      if (is_ready(it->second)) {
-        view.apply_row(it->second.get(), it->first);
-        it = futures.erase(it);
-      } else {
-        ++it;
-      }
-    }
+  for (uint32_t t = 0; t < max_threads - 1; ++t) {
+    const uint32_t first = t * batch_size;
+    const uint32_t last = first + batch_size;
+    threads.emplace_back(generate_multiple_rows, std::cref(scene),
+                         std::cref(camera), std::ref(view), first, last,
+                         seed++);
   }
-  for (auto& [idx, fut] : futures) {
-    view.apply_row(fut.get(), idx);
-  }
+
+  generate_multiple_rows(scene, camera, view, (max_threads - 1) * batch_size,
+                         view.height, seed++);
+
+  for (auto& t : threads) t.join();
+
   return view;
 }
 
@@ -120,7 +118,7 @@ int main(int argc, char** argv) {
   const Scene scene = build_scene();
   const auto end_scene = std::chrono::steady_clock::now();
 
-  const auto image = generate_image(camera, scene, width, height);
+  const auto image = generate_image(scene, camera, width, height);
   const auto end_image = std::chrono::steady_clock::now();
 
   png_utils::write_png(file_name.c_str(), image);
