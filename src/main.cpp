@@ -43,9 +43,8 @@ Scene build_scene() {
   return scene;
 }
 
-constexpr uint32_t samples_num = 100;
 ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
-                     uint32_t width, std::mt19937& rng) {
+                     uint32_t width, uint32_t samples_num, std::mt19937& rng) {
   ViewRow row(width);
   for (uint32_t x = 0; x < width; ++x) {
     for (uint32_t i = 0; i < samples_num; ++i) {
@@ -59,15 +58,16 @@ ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
 
 void generate_multiple_rows(const Scene& scene, const Camera& camera,
                             View& view, uint32_t first, uint32_t last,
-                            uint32_t seed) {
+                            uint32_t samples_num, uint32_t seed) {
   std::mt19937 rng_engine{seed};
   for (auto y = first; y < last; ++y) {
-    view.apply_row(generate_row(scene, camera, y, view.width, rng_engine), y);
+    view.apply_row(
+        generate_row(scene, camera, y, view.width, samples_num, rng_engine), y);
   }
 }
 
 View generate_image(const Scene& scene, const Camera& camera, uint32_t w,
-                    uint32_t h) {
+                    uint32_t h, uint32_t samples_num) {
   View view{w, h};
 
   const auto max_threads = std::thread::hardware_concurrency();
@@ -82,11 +82,11 @@ View generate_image(const Scene& scene, const Camera& camera, uint32_t w,
     const uint32_t last = first + batch_size;
     threads.emplace_back(generate_multiple_rows, std::cref(scene),
                          std::cref(camera), std::ref(view), first, last,
-                         seed++);
+                         samples_num, seed++);
   }
 
   generate_multiple_rows(scene, camera, view, (max_threads - 1) * batch_size,
-                         view.height, seed++);
+                         view.height, samples_num, seed++);
 
   for (auto& t : threads) t.join();
 
@@ -98,11 +98,14 @@ int main(int argc, char** argv) {
 
   uint32_t width;
   uint32_t height;
+  uint32_t samples_num;
   std::string file_name;
   app.set_help_flag("--help", "");
   app.add_option("-f,--file", file_name, "Output png file")->required();
   app.add_option("-w,--width", width, "Output file width")->default_val(640);
   app.add_option("-h,--height", height, "Output file height")->default_val(480);
+  app.add_option("-s,--samples", samples_num, "Number of samples per pixel")
+      ->default_val(100);
 
   CLI11_PARSE(app, argc, argv);
 
@@ -117,7 +120,7 @@ int main(int argc, char** argv) {
   const Scene scene = build_scene();
   const auto end_scene = std::chrono::steady_clock::now();
 
-  const auto image = generate_image(scene, camera, width, height);
+  const auto image = generate_image(scene, camera, width, height, samples_num);
   const auto end_image = std::chrono::steady_clock::now();
 
   png_utils::write_png(file_name.c_str(), image);
