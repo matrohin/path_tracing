@@ -5,8 +5,8 @@
 #include "objects/sphere.h"
 #include "view/color.h"
 
-#include <vector>
 #include <random>
+#include <vector>
 
 using Materials = std::vector<Material>;
 using Objects = std::vector<Sphere>;

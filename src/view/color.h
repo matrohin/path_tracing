@@ -17,4 +17,3 @@ inline constexpr Color BLACK = {};
 inline constexpr Color WHITE = {1., 1., 1.};
 inline constexpr Color GREEN = {0., 1., 0.};
 inline constexpr Color RED = {1., 0., 0.};
-

@@ -7,4 +7,4 @@ namespace png_utils {
 
 bool write_png(const char* file_name, const View& image);
 
-}  // namespace png_utils
+} // namespace png_utils

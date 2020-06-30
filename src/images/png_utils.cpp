@@ -1,11 +1,11 @@
 #include "png_utils.h"
 
-#include <png.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <memory>
 #include <optional>
+#include <png.h>
 
 namespace {
 
@@ -46,7 +46,7 @@ png_byte to_byte(double c) {
   return std::lround(std::pow(std::clamp(c, 0.0, 1.0), 1. / 2.2) * 0xff);
 }
 
-}  // unnamed namespace
+} // unnamed namespace
 
 namespace png_utils {
 
@@ -75,4 +75,4 @@ bool write_png(const char* file_name, const View& image) {
   return true;
 }
 
-}  // namespace png_utils
+} // namespace png_utils

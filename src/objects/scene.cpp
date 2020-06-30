@@ -42,7 +42,7 @@ Color shoot_ray_impl(const Scene& scene, Ray ray, std::mt19937& engine,
   return mat.emmitance + mat.diffuse * cos_theta * incoming;
 }
 
-}  // unnamed namespace
+} // unnamed namespace
 
 Scene Scene::with_capacity(size_t cap) {
   Scene res;
