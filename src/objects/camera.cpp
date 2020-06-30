@@ -20,7 +20,7 @@ Camera::Camera(const Point3d& origin, const Vec3d& dir, const Vec3d& u,
 }
 
 Ray Camera::create_ray_from_pixel(uint32_t x, uint32_t y,
-                                  std::mt19937& rng_engine) const {
+                                  std::minstd_rand& rng_engine) const {
   // TODO: Maybe change that to non-random distribution of rays?
   std::uniform_real_distribution<> dist;
   const auto dx = x + dist(rng_engine);

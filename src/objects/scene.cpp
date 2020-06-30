@@ -24,7 +24,7 @@ std::pair<size_t, double> find_intersection(const Objects& objects,
   return {best_idx, best_distance};
 }
 
-Color shoot_ray_impl(const Scene& scene, Ray ray, std::mt19937& engine,
+Color shoot_ray_impl(const Scene& scene, Ray ray, std::minstd_rand& engine,
                      uint32_t depth) {
   if (depth >= max_depth) return BLACK;
 
@@ -51,7 +51,7 @@ Scene Scene::with_capacity(size_t cap) {
   return res;
 }
 
-Color Scene::shoot_ray(const Ray& ray, std::mt19937& engine) const {
+Color Scene::shoot_ray(const Ray& ray, std::minstd_rand& engine) const {
   return shoot_ray_impl(*this, ray, engine, 0);
 }
 

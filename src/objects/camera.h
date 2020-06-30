@@ -21,5 +21,5 @@ public:
          uint32_t height);
 
   Ray create_ray_from_pixel(uint32_t x, uint32_t y,
-                            std::mt19937& rng_engine) const;
+                            std::minstd_rand& rng_engine) const;
 };

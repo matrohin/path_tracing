@@ -44,7 +44,8 @@ Scene build_scene() {
 }
 
 ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
-                     uint32_t width, uint32_t samples_num, std::mt19937& rng) {
+                     uint32_t width, uint32_t samples_num,
+                     std::minstd_rand& rng) {
   ViewRow row(width);
   for (uint32_t x = 0; x < width; ++x) {
     for (uint32_t i = 0; i < samples_num; ++i) {
@@ -59,7 +60,7 @@ ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
 void generate_multiple_rows(const Scene& scene, const Camera& camera,
                             View& view, uint32_t first, uint32_t last,
                             uint32_t samples_num, uint32_t seed) {
-  std::mt19937 rng_engine{seed};
+  std::minstd_rand rng_engine{seed};
   for (auto y = first; y < last; ++y) {
     view.apply_row(
         generate_row(scene, camera, y, view.width, samples_num, rng_engine), y);

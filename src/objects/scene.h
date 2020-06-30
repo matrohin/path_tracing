@@ -17,6 +17,6 @@ struct Scene {
 
   static Scene with_capacity(size_t cap);
 
-  Color shoot_ray(const Ray& ray, std::mt19937& engine) const;
+  Color shoot_ray(const Ray& ray, std::minstd_rand& engine) const;
   void add_sphere(const Sphere& s, const Material& m);
 };
