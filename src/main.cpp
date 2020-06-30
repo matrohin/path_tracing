@@ -45,11 +45,11 @@ Scene build_scene() {
 
 constexpr uint32_t samples_num = 100;
 ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
-                     uint32_t width, std::mt19937& rng_engine) {
+                     uint32_t width, std::mt19937& rng) {
   ViewRow row(width);
   for (uint32_t x = 0; x < width; ++x) {
     for (uint32_t i = 0; i < samples_num; ++i) {
-      row[x] += scene.shoot_ray(camera.create_ray_from_pixel(x, y), rng_engine);
+      row[x] += scene.shoot_ray(camera.create_ray_from_pixel(x, y, rng), rng);
     }
     row[x] /= (1.0 * samples_num);
   }

@@ -19,8 +19,12 @@ Camera::Camera(const Point3d& origin, const Vec3d& dir, const Vec3d& u,
   left_bottom = p - up * (height / 2.) - right * (width / 2.);
 }
 
-Ray Camera::create_ray_from_pixel(uint32_t x, uint32_t y) const {
-  // TODO: add random
-  const auto p = left_bottom + 1. * x * right + 1. * y * up;
+Ray Camera::create_ray_from_pixel(uint32_t x, uint32_t y,
+                                  std::mt19937& rng_engine) const {
+  // TODO: Maybe change that to non-random distribution of rays?
+  std::uniform_real_distribution<> dist;
+  const auto dx = x + dist(rng_engine);
+  const auto dy = y + dist(rng_engine);
+  const auto p = left_bottom + dx * right + dy * up;
   return {start, (p - start).normalized()};
 }
