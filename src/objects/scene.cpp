@@ -15,7 +15,7 @@ std::pair<size_t, double> find_intersection(const Objects& objects,
   size_t best_idx = not_found;
   double best_distance = std::numeric_limits<double>::max();
   for (size_t i = 0; i < objects.size(); ++i) {
-    const auto distance = intersect(ray, objects[i]);
+    const auto distance = objects[i].intersect(ray);
     if (distance && *distance < best_distance) {
       best_idx = i;
       best_distance = *distance;
@@ -32,7 +32,7 @@ Color shoot_ray_impl(const Scene& scene, Ray ray, std::minstd_rand& engine,
   if (idx == not_found) return BLACK;
 
   const auto p = ray.at(distance);
-  const auto normal = (p - scene.objects[idx].center).normalized();
+  const auto normal = scene.objects[idx].normalAtPoint(p);
   const auto new_dir =
       generate_random_vec_on_hemisphere(normal, engine).normalized();
 
