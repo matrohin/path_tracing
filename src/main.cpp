@@ -17,7 +17,7 @@
 #include <vector>
 
 Scene build_scene() {
-  auto scene = Scene::with_capacity(10);
+  auto scene = Scene::with_capacity(12);
   scene.add_sphere({{-1e5, 50., 0.}, 1e5},
                    Material::create_diffuse({0.75, 0.25, 0.25})); // left
   scene.add_sphere({{1e5 + 100.0, 50., 0.}, 1e5},
@@ -31,14 +31,16 @@ Scene build_scene() {
   scene.add_sphere({{50., 1e6 + 100., 0.}, 1e6},
                    Material::create_diffuse({0.85, 0.85, 0.85})); // top
 
-  scene.add_sphere({{23., 16., 40.}, 16.},
+  scene.add_sphere({{23., 11., 40.}, 11.},
                    Material::create_diffuse({0., 0.90, 0.75})); // sphere 1
   scene.add_sphere({{75., 23., 78.}, 23.},
                    Material::create_reflective(1.)); // sphere 2
-  scene.add_sphere({{23., 42., 40.}, 10.},
+  scene.add_sphere({{23., 30., 40.}, 8.},
                    Material::create_diffuse({0.2, 0.9, 0.2})); // sphere 3
   scene.add_sphere({{49., 14., 55.}, 14.},
                    Material::create_reflective(0.5, {0.8, 0.8, 0.})); // sphere 4
+  scene.add_sphere({{33., 22., 20.}, 13.},
+                   Material::create_transparent(1.0, 1.5)); // sphere 5
   scene.add_sphere({{50., 399., 50.}, 300.},
                    Material::create_light({7.0, 6.0, 6.0})); // light
 

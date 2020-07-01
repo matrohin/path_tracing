@@ -37,9 +37,21 @@ Color shoot_ray_impl(const Scene& scene, Ray ray, std::minstd_rand& rng,
   const auto& mat = scene.materials[idx];
 
   std::uniform_real_distribution<> distr;
-  if (distr(rng) < mat.reflectivity) { // reflect
+  if (distr(rng) < mat.transparency) { // refract
+    const auto new_dir = [&]() {
+      const bool inside = ray.direction % normal < 0.;
+      if (inside) {
+        return refract_vec(ray.direction, -normal, mat.refraction_index, 1.);
+      } else {
+        return refract_vec(ray.direction, normal, 1., mat.refraction_index);
+      }
+    }();
+    return mat.emmitance + shoot_ray_impl(scene, {p, new_dir}, rng, depth + 1);
+
+  } else if (distr(rng) < mat.reflectivity) { // reflect
     const auto new_dir = reflect_vec(ray.direction, normal);
     return mat.emmitance + shoot_ray_impl(scene, {p, new_dir}, rng, depth + 1);
+
   } else { // diffuse
     const auto new_dir =
         generate_random_vec_on_hemisphere(normal, rng).normalized();
