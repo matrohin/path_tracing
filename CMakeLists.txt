@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 
 project(path_tracing VERSION 0.0.1 LANGUAGES CXX)
 
+if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+  include(CheckIPOSupported)
+  check_ipo_supported()
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
 # Link this 'library' to set the c++ standard / compile-time options requested
 add_library(project_options INTERFACE)
 target_compile_features(project_options INTERFACE cxx_std_17)
