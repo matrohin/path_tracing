@@ -23,22 +23,24 @@ Scene build_scene() {
   scene.add_sphere({{1e5 + 100.0, 50., 0.}, 1e5},
                    Material::create_diffuse({0.25, 0.25, 0.75})); // right
   scene.add_sphere({{50., 50., 1e5 + 100.}, 1e5},
-                   Material::create_diffuse({0.75, 0.75, 0.75})); // front
+                   Material::create_diffuse({0.85, 0.85, 0.85})); // front
   scene.add_sphere({{50., 50., -1e5 - 101.}, 1e5},
-                   Material::create_diffuse({0.75, 0.75, 0.75})); // back
+                   Material::create_diffuse({0.85, 0.85, 0.85})); // back
   scene.add_sphere({{50., -1e5, 0.}, 1e5},
-                   Material::create_diffuse({0.75, 0.75, 0.75})); // bottom
+                   Material::create_diffuse({0.85, 0.85, 0.85})); // bottom
   scene.add_sphere({{50., 1e6 + 100., 0.}, 1e6},
-                   Material::create_diffuse({0.75, 0.75, 0.75})); // top
+                   Material::create_diffuse({0.85, 0.85, 0.85})); // top
 
-  scene.add_sphere({{27., 16., 47.}, 16.},
+  scene.add_sphere({{23., 16., 40.}, 16.},
                    Material::create_diffuse({0., 0.90, 0.75})); // sphere 1
-  scene.add_sphere({{73., 23., 78.}, 23.},
-                   Material::create_diffuse({0.9, 0.9, 0.9})); // sphere 2
-  scene.add_sphere({{73., 56., 78.}, 10.},
-                   Material::create_diffuse({0.9, 0.9, 0.9})); // sphere 3
+  scene.add_sphere({{75., 23., 78.}, 23.},
+                   Material::create_reflective(1.)); // sphere 2
+  scene.add_sphere({{23., 42., 40.}, 10.},
+                   Material::create_diffuse({0.2, 0.9, 0.2})); // sphere 3
+  scene.add_sphere({{49., 14., 55.}, 14.},
+                   Material::create_reflective(0.5, {0.8, 0.8, 0.})); // sphere 4
   scene.add_sphere({{50., 399., 50.}, 300.},
-                   Material::create_light({4.0, 3.0, 3.0})); // light
+                   Material::create_light({7.0, 6.0, 6.0})); // light
 
   return scene;
 }

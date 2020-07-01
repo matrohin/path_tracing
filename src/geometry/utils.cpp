@@ -8,3 +8,8 @@ Vec3d generate_random_vec_on_hemisphere(const Vec3d& normal,
   if (t < 0) return -res;
   return res;
 }
+
+Vec3d reflect_vec(const Vec3d& vec, const Vec3d& normal) {
+  // http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
+  return vec - 2 * (vec % normal) * normal;
+}

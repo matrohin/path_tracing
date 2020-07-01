@@ -24,7 +24,7 @@ std::pair<size_t, double> find_intersection(const Objects& objects,
   return {best_idx, best_distance};
 }
 
-Color shoot_ray_impl(const Scene& scene, Ray ray, std::minstd_rand& engine,
+Color shoot_ray_impl(const Scene& scene, Ray ray, std::minstd_rand& rng,
                      uint32_t depth) {
   if (depth >= max_depth) return BLACK;
 
@@ -33,13 +33,20 @@ Color shoot_ray_impl(const Scene& scene, Ray ray, std::minstd_rand& engine,
 
   const auto p = ray.at(distance);
   const auto normal = scene.objects[idx].normalAtPoint(p);
-  const auto new_dir =
-      generate_random_vec_on_hemisphere(normal, engine).normalized();
 
   const auto& mat = scene.materials[idx];
-  const auto incoming = shoot_ray_impl(scene, {p, new_dir}, engine, depth + 1);
-  const auto cos_theta = new_dir % normal;
-  return mat.emmitance + mat.diffuse * cos_theta * incoming;
+
+  std::uniform_real_distribution<> distr;
+  if (distr(rng) < mat.reflectivity) { // reflect
+    const auto new_dir = reflect_vec(ray.direction, normal);
+    return mat.emmitance + shoot_ray_impl(scene, {p, new_dir}, rng, depth + 1);
+  } else { // diffuse
+    const auto new_dir =
+        generate_random_vec_on_hemisphere(normal, rng).normalized();
+    const auto incoming = shoot_ray_impl(scene, {p, new_dir}, rng, depth + 1);
+    const auto cos_theta = new_dir % normal;
+    return mat.emmitance + mat.diffuse * cos_theta * incoming;
+  }
 }
 
 } // unnamed namespace
