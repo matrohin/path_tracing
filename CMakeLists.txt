@@ -15,7 +15,7 @@ target_compile_features(project_options INTERFACE cxx_std_17)
 # Link this 'library' to use the standard warnings
 add_library(project_warnings INTERFACE)
 if (MSVC)
-  target_compile_options(project_warnings INTERFACE /W4 "/permissive-")
+  target_compile_options(project_warnings INTERFACE /W4 /WX "/permissive-" /D_CRT_SECURE_NO_WARNINGS)
 else()
   target_compile_options(project_warnings
     INTERFACE

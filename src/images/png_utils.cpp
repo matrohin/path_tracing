@@ -43,7 +43,8 @@ PngStruct::PngStruct(FILE* file, uint32_t width, uint32_t height) {
 
 // Applies gamma correction
 png_byte to_byte(double c) {
-  return std::lround(std::pow(std::clamp(c, 0.0, 1.0), 1. / 2.2) * 0xff);
+  return static_cast<png_byte>(
+      std::lround(std::pow(std::clamp(c, 0.0, 1.0), 1. / 2.2) * 0xff));
 }
 
 } // unnamed namespace
