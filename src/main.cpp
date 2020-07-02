@@ -17,32 +17,42 @@
 #include <vector>
 
 Scene build_scene() {
-  auto scene = Scene::with_capacity(12);
-  scene.add_sphere({{-1e5, 50., 0.}, 1e5},
-                   Material::create_diffuse({0.75, 0.25, 0.25})); // left
-  scene.add_sphere({{1e5 + 100.0, 50., 0.}, 1e5},
-                   Material::create_diffuse({0.25, 0.25, 0.75})); // right
-  scene.add_sphere({{50., 50., 1e5 + 100.}, 1e5},
-                   Material::create_diffuse({0.85, 0.85, 0.85})); // front
-  scene.add_sphere({{50., 50., -1e5 - 101.}, 1e5},
-                   Material::create_diffuse({0.85, 0.85, 0.85})); // back
-  scene.add_sphere({{50., -1e5, 0.}, 1e5},
-                   Material::create_diffuse({0.85, 0.85, 0.85})); // bottom
-  scene.add_sphere({{50., 1e6 + 100., 0.}, 1e6},
-                   Material::create_diffuse({0.85, 0.85, 0.85})); // top
+  Scene scene;
+  const auto light_gray_diffuse =
+      scene.add_material(Material::create_diffuse({0.85, 0.85, 0.85}));
+  const auto red_diffuse =
+      scene.add_material(Material::create_diffuse({0.75, 0.25, 0.25}));
+  const auto blue_diffuse =
+      scene.add_material(Material::create_diffuse({0.25, 0.25, 0.75}));
+  const auto green_diffuse =
+      scene.add_material(Material::create_diffuse({0.25, 0.75, 0.25}));
+  const auto blue_green_diffuse =
+      scene.add_material(Material::create_diffuse({0., 0.90, 0.75}));
+  const auto perfect_reflection =
+      scene.add_material(Material::create_reflective(1.));
+  const auto yellowish_reflection =
+      scene.add_material(Material::create_reflective(0.5, {0.8, 0.8, 0.}));
+  const auto glass = scene.add_material(Material::create_transparent(1.0, 1.5));
+  const auto light =
+      scene.add_material(Material::create_light({7.0, 6.0, 6.0}));
 
-  scene.add_sphere({{23., 11., 40.}, 11.},
-                   Material::create_diffuse({0., 0.90, 0.75})); // sphere 1
-  scene.add_sphere({{75., 23., 78.}, 23.},
-                   Material::create_reflective(1.)); // sphere 2
-  scene.add_sphere({{23., 30., 40.}, 8.},
-                   Material::create_diffuse({0.2, 0.9, 0.2})); // sphere 3
-  scene.add_sphere({{49., 14., 55.}, 14.},
-                   Material::create_reflective(0.5, {0.8, 0.8, 0.})); // sphere 4
-  scene.add_sphere({{33., 22., 20.}, 13.},
-                   Material::create_transparent(1.0, 1.5)); // sphere 5
-  scene.add_sphere({{50., 399., 50.}, 300.},
-                   Material::create_light({7.0, 6.0, 6.0})); // light
+  scene.add_rectangle({35., 100., 65.}, {65., 100., 65.}, {35., 100., 35.},
+                      light);
+  scene.add_rectangle({0., 0., -100.}, {0., 0., 100.}, {0., 100., -100.},
+                      red_diffuse); // left
+  scene.add_rectangle({100., 0., 100.}, {100., 0., -100.}, {100., 100., 100.},
+                      blue_diffuse); // right
+
+  scene.add_sphere({{50., 50., 1e5 + 100.}, 1e5}, light_gray_diffuse);  // front
+  scene.add_sphere({{50., 50., -1e5 - 101.}, 1e5}, light_gray_diffuse); // back
+  scene.add_sphere({{50., -1e5, 0.}, 1e5}, light_gray_diffuse);       // bottom
+  scene.add_sphere({{50., 1e6 + 100., 0.}, 1e6}, light_gray_diffuse); // top
+
+  scene.add_sphere({{23., 11., 40.}, 11.}, blue_green_diffuse);   // sphere 1
+  scene.add_sphere({{75., 23., 78.}, 23.}, perfect_reflection);   // sphere 2
+  scene.add_sphere({{23., 30., 40.}, 8.}, green_diffuse);         // sphere 3
+  scene.add_sphere({{49., 14., 55.}, 14.}, yellowish_reflection); // sphere 4
+  scene.add_sphere({{33., 22., 20.}, 13.}, glass);                // sphere 5
 
   return scene;
 }
@@ -53,7 +63,7 @@ ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
   ViewRow row(width);
   for (uint32_t x = 0; x < width; ++x) {
     for (uint32_t i = 0; i < samples_num; ++i) {
-      row[x] += scene.shoot_ray(camera.create_ray_from_pixel(x, y, rng), rng);
+      row[x] += shoot_ray(scene, camera.create_ray_from_pixel(x, y, rng), rng);
     }
     row[x] /= (1.0 * samples_num);
   }
