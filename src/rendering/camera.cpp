@@ -1,6 +1,6 @@
 #include "camera.h"
 
-#include "ray.h"
+#include "objects/ray.h"
 
 #include <cmath>
 

@@ -1,5 +1,5 @@
-#include "objects/camera.h"
-#include "objects/scene.h"
+#include "rendering/camera.h"
+#include "rendering/scene.h"
 #include "view/view.h"
 
 #include <cstdint>

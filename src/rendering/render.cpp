@@ -1,7 +1,5 @@
 #include "render.h"
 
-#include "objects/scene.h"
-
 #include <random>
 #include <thread>
 
@@ -39,8 +37,7 @@ void render_multiple_rows(View& view, const RenderingContext& context,
 
 void render(View& view, const RenderingContext& context) {
   const auto max_threads =
-      std::thread::hardware_concurrency(); // TODO: Make it command line
-                                           // argument
+      std::thread::hardware_concurrency(); // TODO: Make it command line arg
   const uint32_t batch_size = view.height / max_threads;
   std::vector<std::thread> threads;
   threads.reserve(max_threads - 1);

@@ -1,11 +1,9 @@
 #include "geometry/point3d.h"
 #include "geometry/vec3d.h"
 #include "images/png_utils.h"
-#include "objects/camera.h"
-#include "objects/ray.h"
-#include "objects/render.h"
-#include "objects/scene.h"
-#include "objects/sphere.h"
+#include "rendering/camera.h"
+#include "rendering/render.h"
+#include "rendering/scene.h"
 #include "view/view.h"
 
 #include <CLI/CLI.hpp>
