@@ -12,6 +12,7 @@ Color operator*(const Color& a, double b);
 Color operator*(double a, const Color& b);
 Color operator*(const Color& a, const Color& b);
 Color operator+(const Color& a, const Color& b);
+Color operator/(Color a, double b);
 
 inline constexpr Color BLACK = {};
 inline constexpr Color WHITE = {1., 1., 1.};

@@ -3,20 +3,19 @@
 #include "images/png_utils.h"
 #include "objects/camera.h"
 #include "objects/ray.h"
+#include "objects/render.h"
 #include "objects/scene.h"
 #include "objects/sphere.h"
 #include "view/view.h"
 
 #include <CLI/CLI.hpp>
 #include <chrono>
-#include <future>
 #include <iostream>
-#include <random>
 #include <string>
-#include <thread>
-#include <vector>
 
-Scene build_scene() {
+namespace {
+
+Scene build_default_scene() {
   Scene scene;
   const auto light_gray_diffuse =
       scene.add_material(Material::create_diffuse({0.85, 0.85, 0.85}));
@@ -57,56 +56,17 @@ Scene build_scene() {
   return scene;
 }
 
-ViewRow generate_row(const Scene& scene, const Camera& camera, uint32_t y,
-                     uint32_t width, uint32_t samples_num,
-                     std::minstd_rand& rng) {
-  ViewRow row(width);
-  for (uint32_t x = 0; x < width; ++x) {
-    for (uint32_t i = 0; i < samples_num; ++i) {
-      row[x] += shoot_ray(scene, camera.create_ray_from_pixel(x, y, rng), rng);
-    }
-    row[x] /= (1.0 * samples_num);
-  }
-
-  return row;
+Camera create_default_camera(uint32_t width, uint32_t height) {
+  return {Point3d{50., 50., -100.},
+          Vec3d{0., 0., 1.},
+          Vec3d{0., 1., 0.},
+          0.5135,
+          1.,
+          width,
+          height};
 }
 
-void generate_multiple_rows(const Scene& scene, const Camera& camera,
-                            View& view, uint32_t first, uint32_t last,
-                            uint32_t samples_num, uint32_t seed) {
-  std::minstd_rand rng_engine{seed};
-  for (auto y = first; y < last; ++y) {
-    view.apply_row(
-        generate_row(scene, camera, y, view.width, samples_num, rng_engine), y);
-  }
-}
-
-View generate_image(const Scene& scene, const Camera& camera, uint32_t w,
-                    uint32_t h, uint32_t samples_num) {
-  View view{w, h};
-
-  const auto max_threads = std::thread::hardware_concurrency();
-  std::cout << "Number of threads: " << max_threads << '\n';
-
-  const uint32_t batch_size = view.height / max_threads;
-  std::vector<std::thread> threads;
-  threads.reserve(max_threads - 1);
-  uint32_t seed = 0;
-  for (uint32_t t = 0; t < max_threads - 1; ++t) {
-    const uint32_t first = t * batch_size;
-    const uint32_t last = first + batch_size;
-    threads.emplace_back(generate_multiple_rows, std::cref(scene),
-                         std::cref(camera), std::ref(view), first, last,
-                         samples_num, seed++);
-  }
-
-  generate_multiple_rows(scene, camera, view, (max_threads - 1) * batch_size,
-                         view.height, samples_num, seed++);
-
-  for (auto& t : threads) t.join();
-
-  return view;
-}
+} // unnamed namespace
 
 int main(int argc, char** argv) {
   CLI::App app{"Path Tracing Toy Project"};
@@ -114,6 +74,7 @@ int main(int argc, char** argv) {
   uint32_t width;
   uint32_t height;
   uint32_t samples_num;
+  uint32_t depth;
   std::string file_name;
   app.set_help_flag("--help", "");
   app.add_option("-f,--file", file_name, "Output png file")->required();
@@ -121,21 +82,20 @@ int main(int argc, char** argv) {
   app.add_option("-h,--height", height, "Output file height")->default_val(480);
   app.add_option("-s,--samples", samples_num, "Number of samples per pixel")
       ->default_val(100);
+  app.add_option("-d,--depth", depth,
+                 "Maximum recursive depth of transmitting/reflecting rays")
+      ->default_val(10);
 
   CLI11_PARSE(app, argc, argv);
 
   const auto start = std::chrono::steady_clock::now();
-  const Camera camera{Point3d{50., 50., -100.},
-                      Vec3d{0., 0., 1.},
-                      Vec3d{0., 1., 0.},
-                      0.5135,
-                      1.,
-                      width,
-                      height};
-  const Scene scene = build_scene();
+
+  const RenderingContext context{create_default_camera(width, height),
+                                 build_default_scene(), samples_num, depth};
   const auto end_scene = std::chrono::steady_clock::now();
 
-  const auto image = generate_image(scene, camera, width, height, samples_num);
+  View image{width, height};
+  render(image, context);
   const auto end_image = std::chrono::steady_clock::now();
 
   png_utils::write_png(file_name.c_str(), image);

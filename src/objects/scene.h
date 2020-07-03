@@ -28,5 +28,5 @@ struct Scene {
                      const Point3d& right_bottom, size_t material_index);
 };
 
-Color shoot_ray(const Scene& scene, const Ray& ray, std::minstd_rand& engine);
+Color shoot_ray(const Scene& scene, const Ray& ray, uint32_t depth, std::minstd_rand& engine);
 

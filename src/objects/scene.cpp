@@ -9,7 +9,6 @@
 // TODO: Refactor some parts into separate file?
 namespace {
 constexpr size_t not_found = std::numeric_limits<size_t>::max();
-constexpr uint32_t max_depth = 10; // TODO: add command line argument
 
 template <class TObjects>
 std::pair<size_t, double> find_intersection(const TObjects& objects,
@@ -47,9 +46,11 @@ Hit find_first_hit(const Scene& scene, const Ray& ray) {
   return {};
 }
 
-Color shoot_ray_impl(const Scene& scene, Ray ray, std::minstd_rand& rng,
-                     uint32_t depth) {
-  if (depth >= max_depth) return BLACK;
+} // unnamed namespace
+
+Color shoot_ray(const Scene& scene, const Ray& ray, uint32_t depth,
+                std::minstd_rand& rng) {
+  if (depth == 0) return BLACK;
 
   const auto hit = find_first_hit(scene, ray);
   if (hit.material_index == not_found) return BLACK;
@@ -68,27 +69,21 @@ Color shoot_ray_impl(const Scene& scene, Ray ray, std::minstd_rand& rng,
       }
     }();
     return mat.emmitance +
-           shoot_ray_impl(scene, {hit.hit_point, new_dir}, rng, depth + 1);
+           shoot_ray(scene, {hit.hit_point, new_dir}, depth - 1, rng);
 
   } else if (distr(rng) < mat.reflectivity) { // reflect
     const auto new_dir = reflect_vec(ray.direction, normal);
     return mat.emmitance +
-           shoot_ray_impl(scene, {hit.hit_point, new_dir}, rng, depth + 1);
+           shoot_ray(scene, {hit.hit_point, new_dir}, depth - 1, rng);
 
   } else { // diffuse
     const auto new_dir =
         generate_random_vec_on_hemisphere(normal, rng).normalized();
     const auto incoming =
-        shoot_ray_impl(scene, {hit.hit_point, new_dir}, rng, depth + 1);
+        shoot_ray(scene, {hit.hit_point, new_dir}, depth - 1, rng);
     const auto cos_theta = new_dir % normal;
     return mat.emmitance + mat.diffuse * cos_theta * incoming;
   }
-}
-
-} // unnamed namespace
-
-Color shoot_ray(const Scene& scene, const Ray& ray, std::minstd_rand& engine) {
-  return shoot_ray_impl(scene, ray, engine, 0);
 }
 
 size_t Scene::add_material(const Material& m) {
@@ -107,5 +102,7 @@ void Scene::add_triangle(const Triangle& t, size_t material_index) {
 void Scene::add_rectangle(const Point3d& left_bottom, const Point3d& left_top,
                           const Point3d& right_bottom, size_t material_index) {
   add_triangle({left_bottom, right_bottom, left_top}, material_index);
-  add_triangle({left_top, right_bottom, left_top + triangles.back().shape.first_edge}, material_index);
+  add_triangle(
+      {left_top, right_bottom, left_top + triangles.back().shape.first_edge},
+      material_index);
 }

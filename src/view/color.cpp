@@ -31,3 +31,8 @@ Color operator+(const Color& a, const Color& b) {
   res += b;
   return res;
 }
+
+Color operator/(Color a, double b) {
+  return a /= b;
+}
+
