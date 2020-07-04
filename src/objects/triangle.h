@@ -16,3 +16,6 @@ struct Triangle {
   Vec3d normal() const;
 };
 
+inline Vec3d Triangle::normal() const {
+  return (first_edge * second_edge).normalized();
+}

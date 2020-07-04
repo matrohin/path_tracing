@@ -54,4 +54,3 @@ void render(View& view, const RenderingContext& context) {
 
   for (auto& t : threads) t.join();
 }
-

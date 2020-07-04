@@ -25,7 +25,3 @@ std::optional<double> Sphere::intersect(const Ray& ray) const {
 
   return {};
 }
-
-Vec3d Sphere::normalAtPoint(const Point3d& point) const {
-  return (point - center).normalized();
-}

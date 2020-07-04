@@ -26,8 +26,3 @@ std::optional<double> Triangle::intersect(const Ray& ray) const {
   if (t > 0) return t;
   return {};
 }
-
-Vec3d Triangle::normal() const {
-  return (first_edge * second_edge).normalized();
-}
-

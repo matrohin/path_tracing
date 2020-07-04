@@ -17,3 +17,6 @@ public:
   Vec3d normalAtPoint(const Point3d& point) const;
 };
 
+inline Vec3d Sphere::normalAtPoint(const Point3d& point) const {
+  return (point - center).normalized();
+}

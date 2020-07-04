@@ -9,3 +9,7 @@ struct Ray {
 
   Point3d at(double t) const;
 };
+
+inline Point3d Ray::at(double t) const {
+  return start + (direction * t);
+}
