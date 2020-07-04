@@ -33,30 +33,34 @@ Scene build_default_scene() {
   const auto light =
       scene.add_material(Material::create_light({7.0, 6.0, 6.0}));
 
-  scene.add_rectangle({35., 100., 65.}, {65., 100., 65.}, {35., 100., 35.},
+  scene.add_rectangle({35., 99.99, -65.}, {65., 99.99, -65.}, {35., 99.99, -35.},
                       light);
-  scene.add_rectangle({0., 0., -100.}, {0., 0., 100.}, {0., 100., -100.},
-                      red_diffuse); // left
+
   scene.add_rectangle({100., 0., 100.}, {100., 0., -100.}, {100., 100., 100.},
+                      red_diffuse); // left
+  scene.add_rectangle({0., 0., -100.}, {0., 0., 100.}, {0., 100., -100.},
                       blue_diffuse); // right
+  scene.add_rectangle({0., 0., -100.}, {0., 100., -100.}, {100., 0., -100.},
+                      light_gray_diffuse); // front
+  scene.add_rectangle({100., 0., 100.}, {100., 100., 100.}, {0., 0., 100.},
+                      light_gray_diffuse); // back
+  scene.add_rectangle({0., 0., 100.}, {0., 0., -100.}, {100., 0., 100.},
+                      light_gray_diffuse); // bottom
+  scene.add_rectangle({0., 100., -100.}, {0., 100., 100.}, {100., 100., -100.},
+                      light_gray_diffuse); // top
 
-  scene.add_sphere({{50., 50., 1e5 + 100.}, 1e5}, light_gray_diffuse);  // front
-  scene.add_sphere({{50., 50., -1e5 - 101.}, 1e5}, light_gray_diffuse); // back
-  scene.add_sphere({{50., -1e5, 0.}, 1e5}, light_gray_diffuse);       // bottom
-  scene.add_sphere({{50., 1e6 + 100., 0.}, 1e6}, light_gray_diffuse); // top
-
-  scene.add_sphere({{23., 11., 40.}, 11.}, blue_green_diffuse);   // sphere 1
-  scene.add_sphere({{75., 23., 78.}, 23.}, perfect_reflection);   // sphere 2
-  scene.add_sphere({{23., 30., 40.}, 8.}, green_diffuse);         // sphere 3
-  scene.add_sphere({{49., 14., 55.}, 14.}, yellowish_reflection); // sphere 4
-  scene.add_sphere({{33., 22., 20.}, 13.}, glass);                // sphere 5
+  scene.add_sphere({{23., 11., -40.}, 11.}, blue_green_diffuse);   // sphere 1
+  scene.add_sphere({{75., 23., -78.}, 23.}, perfect_reflection);   // sphere 2
+  scene.add_sphere({{23., 30., -40.}, 8.}, green_diffuse);         // sphere 3
+  scene.add_sphere({{49., 14., -55.}, 14.}, yellowish_reflection); // sphere 4
+  scene.add_sphere({{33., 22., -20.}, 13.}, glass);                // sphere 5
 
   return scene;
 }
 
 Camera create_default_camera(uint32_t width, uint32_t height) {
-  return {Point3d{50., 50., -100.},
-          Vec3d{0., 0., 1.},
+  return {Point3d{50., 50., 100.},
+          Vec3d{0., 0., -1.},
           Vec3d{0., 1., 0.},
           0.5135,
           1.,

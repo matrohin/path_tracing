@@ -23,6 +23,6 @@ std::optional<double> Triangle::intersect(const Ray& ray) const {
   if (v < 0. || u + v > 1.) return {};
 
   const auto t = second_edge % qvec * inv_det;
-  if (t > 0) return t;
+  if (t > 1e-8) return t;
   return {};
 }
