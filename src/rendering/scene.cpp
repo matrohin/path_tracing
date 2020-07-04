@@ -11,37 +11,46 @@ namespace {
 constexpr size_t not_found = std::numeric_limits<size_t>::max();
 
 template <class TObjects>
-std::pair<size_t, double> find_intersection(const TObjects& objects,
-                                            const Ray& ray) {
+std::pair<size_t, Intersection> find_intersection(const TObjects& objects,
+                                                  const Ray& ray) {
   size_t best_idx = not_found;
-  double best_distance = std::numeric_limits<double>::max();
+  Intersection best_intersection = {std::numeric_limits<double>::max(), false};
   for (size_t i = 0; i < objects.size(); ++i) {
-    const auto distance = objects[i].shape.intersect(ray);
-    if (distance && *distance < best_distance) {
+    const auto intersection = objects[i].shape.intersect(ray);
+    if (intersection && intersection->distance < best_intersection.distance) {
       best_idx = i;
-      best_distance = *distance;
+      best_intersection = *intersection;
     }
   }
-  return {best_idx, best_distance};
+  return {best_idx, best_intersection};
 }
 
 struct Hit {
   Point3d hit_point;
   size_t material_index = not_found;
   Vec3d normal;
+  bool inside = false;
 };
 
 Hit find_first_hit(const Scene& scene, const Ray& ray) {
-  const auto best_sphere = find_intersection(scene.spheres, ray);
-  const auto best_triangle = find_intersection(scene.triangles, ray);
-  if (best_triangle.second < best_sphere.second) {
-    const auto p = ray.at(best_triangle.second);
-    const auto& t = scene.triangles[best_triangle.first];
-    return Hit{p, t.material_index, t.shape.normal()};
-  } else if (best_sphere.first != not_found) {
-    const auto p = ray.at(best_sphere.second);
-    const auto& s = scene.spheres[best_sphere.first];
-    return Hit{p, s.material_index, s.shape.normalAtPoint(p)};
+  const auto [sphere_idx, sphere_intersection] =
+      find_intersection(scene.spheres, ray);
+  const auto [triangle_idx, triangle_intersection] =
+      find_intersection(scene.triangles, ray);
+
+  if (triangle_intersection.distance < sphere_intersection.distance) {
+    const auto p = ray.at(triangle_intersection.distance);
+    const auto& t = scene.triangles[triangle_idx];
+    const bool inside = triangle_intersection.inside;
+    const auto n = inside ? -t.shape.normal() : t.shape.normal();
+    return Hit{p, t.material_index, n, inside};
+
+  } else if (sphere_idx != not_found) {
+    const auto p = ray.at(sphere_intersection.distance);
+    const auto& s = scene.spheres[sphere_idx];
+    const bool inside = sphere_intersection.inside;
+    const auto n = inside ? -s.shape.normalAt(p) : s.shape.normalAt(p);
+    return Hit{p, s.material_index, n, inside};
   }
   return {};
 }
@@ -61,9 +70,8 @@ Color shoot_ray(const Scene& scene, const Ray& ray, uint32_t depth,
   std::uniform_real_distribution<> distr;
   if (distr(rng) < mat.transparency) { // refract
     const auto new_dir = [&]() {
-      const bool inside = ray.direction % normal < 0.;
-      if (inside) {
-        return refract_vec(ray.direction, -normal, mat.refraction_index, 1.);
+      if (hit.inside) {
+        return refract_vec(ray.direction, normal, mat.refraction_index, 1.);
       } else {
         return refract_vec(ray.direction, normal, 1., mat.refraction_index);
       }

@@ -21,8 +21,6 @@ Scene build_default_scene() {
       scene.add_material(Material::create_diffuse({0.75, 0.25, 0.25}));
   const auto blue_diffuse =
       scene.add_material(Material::create_diffuse({0.25, 0.25, 0.75}));
-  const auto green_diffuse =
-      scene.add_material(Material::create_diffuse({0.25, 0.75, 0.25}));
   const auto blue_green_diffuse =
       scene.add_material(Material::create_diffuse({0., 0.90, 0.75}));
   const auto perfect_reflection =
@@ -33,12 +31,14 @@ Scene build_default_scene() {
   const auto light =
       scene.add_material(Material::create_light({7.0, 6.0, 6.0}));
 
-  scene.add_rectangle({35., 99.99, -65.}, {65., 99.99, -65.}, {35., 99.99, -35.},
-                      light);
+  scene.add_rectangle({35., 99.99, -65.}, {65., 99.99, -65.},
+                      {35., 99.99, -35.}, light);
 
-  scene.add_rectangle({100., 0., 100.}, {100., 0., -100.}, {100., 100., 100.},
+  // left and right sides are not in clockwise order to test that inside of
+  // object intersections are working too
+  scene.add_rectangle({0., 0., 100.}, {0., 0., -100.}, {0., 100., 100.},
                       red_diffuse); // left
-  scene.add_rectangle({0., 0., -100.}, {0., 0., 100.}, {0., 100., -100.},
+  scene.add_rectangle({100., 0., -100.}, {100., 0., 100.}, {100., 100., -100.},
                       blue_diffuse); // right
   scene.add_rectangle({0., 0., -100.}, {0., 100., -100.}, {100., 0., -100.},
                       light_gray_diffuse); // front
@@ -49,11 +49,10 @@ Scene build_default_scene() {
   scene.add_rectangle({0., 100., -100.}, {0., 100., 100.}, {100., 100., -100.},
                       light_gray_diffuse); // top
 
-  scene.add_sphere({{23., 11., -40.}, 11.}, blue_green_diffuse);   // sphere 1
-  scene.add_sphere({{75., 23., -78.}, 23.}, perfect_reflection);   // sphere 2
-  scene.add_sphere({{23., 30., -40.}, 8.}, green_diffuse);         // sphere 3
-  scene.add_sphere({{49., 14., -55.}, 14.}, yellowish_reflection); // sphere 4
-  scene.add_sphere({{33., 22., -20.}, 13.}, glass);                // sphere 5
+  scene.add_sphere({{23., 20., -40.}, 20.}, blue_green_diffuse);
+  scene.add_sphere({{23., 50., -40.}, 8.}, glass);
+  scene.add_sphere({{75., 23., -78.}, 23.}, perfect_reflection);
+  scene.add_sphere({{49., 14., -55.}, 14.}, yellowish_reflection);
 
   return scene;
 }

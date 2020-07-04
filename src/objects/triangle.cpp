@@ -7,7 +7,7 @@
 Triangle::Triangle(const Point3d& a, const Point3d& b, const Point3d& c)
     : vertex(a), first_edge(b - a), second_edge(c - a) {}
 
-std::optional<double> Triangle::intersect(const Ray& ray) const {
+std::optional<Intersection> Triangle::intersect(const Ray& ray) const {
   const auto pvec = ray.direction * second_edge;
   const auto det = first_edge % pvec;
 
@@ -23,6 +23,7 @@ std::optional<double> Triangle::intersect(const Ray& ray) const {
   if (v < 0. || u + v > 1.) return {};
 
   const auto t = second_edge % qvec * inv_det;
-  if (t > 1e-8) return t;
-  return {};
+  if (t < 1e-8) return {};
+
+  return Intersection{t, det < 0.};
 }

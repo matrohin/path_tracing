@@ -5,6 +5,7 @@
 #include <optional>
 
 struct Ray;
+struct Intersection;
 
 struct Sphere {
 private:
@@ -13,10 +14,10 @@ private:
 
 public:
   Sphere(const Point3d& c, double radius);
-  std::optional<double> intersect(const Ray& ray) const;
-  Vec3d normalAtPoint(const Point3d& point) const;
+  std::optional<Intersection> intersect(const Ray& ray) const;
+  Vec3d normalAt(const Point3d& point) const;
 };
 
-inline Vec3d Sphere::normalAtPoint(const Point3d& point) const {
+inline Vec3d Sphere::normalAt(const Point3d& point) const {
   return (point - center).normalized();
 }

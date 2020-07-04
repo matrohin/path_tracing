@@ -10,6 +10,11 @@ struct Ray {
   Point3d at(double t) const;
 };
 
+struct Intersection {
+  double distance = 0.;
+  bool inside = false;
+};
+
 inline Point3d Ray::at(double t) const {
   return start + (direction * t);
 }
