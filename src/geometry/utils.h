@@ -1,10 +1,12 @@
 #pragma once
 
 #include "point3d.h"
+#include "vec3d.h"
+#include "matrix3d.h"
 
 #include <random>
 
-Vec3d generate_random_vec_on_hemisphere(const Vec3d& normal,
+Vec3d generate_random_vec_on_hemisphere(const Vec3d& normal, double alpha,
                                         std::minstd_rand& engine);
 
 Vec3d reflect_vec(const Vec3d& vec, const Vec3d& normal);

@@ -1,12 +1,28 @@
 #include "utils.h"
 
-Vec3d generate_random_vec_on_hemisphere(const Vec3d& normal,
+#include <cmath>
+
+namespace {
+const double pi = acos(0.) * 2.;
+
+Matrix3d matrix_from_normal(const Vec3d& normal) {
+  const auto h = abs(normal.x) < 0.99 ? Vec3d{1., 0., 0.} : Vec3d{0., 1., 0.};
+  const auto tangent = (normal * h).normalized();
+  const auto binormal = (normal * tangent).normalized();
+  return Matrix3d{tangent, binormal, normal};
+}
+
+} // unnamed namespace
+
+Vec3d generate_random_vec_on_hemisphere(const Vec3d& normal, double alpha,
                                         std::minstd_rand& engine) {
-  std::normal_distribution<> d;
-  const auto res = Vec3d{d(engine), d(engine), d(engine)}.normalized();
-  const auto t = normal % res;
-  if (t < 0) return -res;
-  return res;
+  std::uniform_real_distribution<> d;
+  double cos_theta = pow(d(engine), 1. / (alpha + 1.));
+  double sin_theta = sqrt(1. - cos_theta * cos_theta);
+  double phi = 2 * pi * d(engine);
+  Vec3d res{cos(phi) * sin_theta, sin(phi) * sin_theta, cos_theta};
+
+  return matrix_from_normal(normal) * res;
 }
 
 // http://graphics.stanford.edu/courses/cs148-10-summer/docs/2006--degreve--reflection_refraction.pdf
