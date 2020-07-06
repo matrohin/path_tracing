@@ -86,11 +86,10 @@ Color shoot_ray(const Scene& scene, const Ray& ray, uint32_t depth,
            shoot_ray(scene, {hit.hit_point, new_dir}, depth - 1, rng);
 
   } else { // diffuse
-    const auto new_dir = generate_random_vec_on_hemisphere(normal, 0., rng);
+    const auto new_dir = generate_random_vec_on_hemisphere(normal, 1., rng);
     const auto incoming =
         shoot_ray(scene, {hit.hit_point, new_dir}, depth - 1, rng);
-    const auto cos_theta = new_dir % normal;
-    return mat.emmitance + 2 * mat.diffuse * cos_theta * incoming;
+    return mat.emmitance + mat.diffuse * incoming;
   }
 }
 
