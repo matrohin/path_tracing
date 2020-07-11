@@ -1,6 +1,9 @@
 #include "geometry/point3d.h"
 #include "geometry/vec3d.h"
 #include "images/png_utils.h"
+#include "parsing/camloader.h"
+#include "parsing/error.h"
+#include "parsing/objloader.h"
 #include "rendering/camera.h"
 #include "rendering/render.h"
 #include "rendering/scene.h"
@@ -8,7 +11,7 @@
 
 #include <CLI/CLI.hpp>
 #include <chrono>
-#include <iostream>
+#include <cstdio>
 #include <string>
 
 namespace {
@@ -67,6 +70,25 @@ Camera create_default_camera(uint32_t width, uint32_t height) {
           height};
 }
 
+RenderingContext make_rendering_context(const std::string& cam_file,
+                                        const std::string& obj_file,
+                                        uint32_t samples_num, uint32_t depth,
+                                        uint32_t width, uint32_t height) {
+  try {
+    return RenderingContext{
+        cam_file.empty()
+            ? create_default_camera(width, height)
+            : parsing::load_cam_file(cam_file.c_str(), width, height),
+        obj_file.empty() ? build_default_scene()
+                         : parsing::load_obj_file(obj_file.c_str()),
+        samples_num, depth};
+  } catch (const parsing::ParsingError& err) {
+    printf("Error while parsing %s(%zu): %s\n", err.file_name.c_str(), err.line,
+           err.reason.c_str());
+    throw;
+  }
+}
+
 } // unnamed namespace
 
 int main(int argc, char** argv) {
@@ -76,9 +98,13 @@ int main(int argc, char** argv) {
   uint32_t height;
   uint32_t samples_num;
   uint32_t depth;
-  std::string file_name;
+  std::string png_file;
+  std::string obj_file;
+  std::string cam_file;
   app.set_help_flag("--help", "");
-  app.add_option("-f,--file", file_name, "Output png file")->required();
+  app.add_option("-f,--file", png_file, "Output .png file")->required();
+  app.add_option("-i,--input", obj_file, "Input .obj file");
+  app.add_option("-c,--camera", cam_file, "Input .cam file");
   app.add_option("-w,--width", width, "Output file width")->default_val(640);
   app.add_option("-h,--height", height, "Output file height")->default_val(480);
   app.add_option("-s,--samples", samples_num, "Number of samples per pixel")
@@ -91,25 +117,25 @@ int main(int argc, char** argv) {
 
   const auto start = std::chrono::steady_clock::now();
 
-  const RenderingContext context{create_default_camera(width, height),
-                                 build_default_scene(), samples_num, depth};
+  const RenderingContext context = make_rendering_context(
+      cam_file, obj_file, samples_num, depth, width, height);
+
   const auto end_scene = std::chrono::steady_clock::now();
 
   View image{width, height};
   render(image, context);
   const auto end_image = std::chrono::steady_clock::now();
 
-  png_utils::write_png(file_name.c_str(), image);
+  png_utils::write_png(png_file.c_str(), image);
   const auto end_full = std::chrono::steady_clock::now();
 
   const auto get_diff = [](const auto& s, const auto& e) {
     return std::chrono::duration<double>(e - s).count();
   };
-  std::cout << "Scene build: " << get_diff(start, end_scene) << "s.\n";
-  std::cout << "Image generation: " << get_diff(end_scene, end_image) << "s.\n";
-  std::cout << "Png image creation: " << get_diff(end_image, end_full)
-            << "s.\n";
-  std::cout << "Full program execution: " << get_diff(start, end_full)
-            << "s.\n";
+
+  printf("Scene build: %lfs.\n", get_diff(start, end_scene));
+  printf("Image generation: %lfs.\n", get_diff(end_scene, end_image));
+  printf("Png image creation: %lfs.\n", get_diff(end_image, end_full));
+  printf("Full program execution: %lfs.\n", get_diff(start, end_full));
   return 0;
 }
