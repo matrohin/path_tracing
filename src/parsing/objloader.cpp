@@ -7,8 +7,11 @@
 #include <algorithm>
 #include <cstdio>
 #include <filesystem>
+#include <map>
 #include <string>
 #include <string_view>
+
+using namespace std::string_literals;
 
 namespace parsing {
 
@@ -21,7 +24,7 @@ std::map<std::string, size_t, std::less<>> load_mtl_file(const char* file_name,
 
   for_all_lines_with_error(file_name, [&](std::string_view line) {
     if (remove_prefix(line, "newmtl ")) {
-      res.emplace(line, scene.add_material({}));
+      res.emplace(trim_spaces(line), scene.add_material({}));
       cur_mat = &scene.materials.back();
     } else if (remove_prefix(line, "Kd ")) {
       if (!cur_mat) throw std::runtime_error{"Kd is used before newmtl"};
@@ -39,7 +42,7 @@ struct ObjFileState {
   size_t cur_mat_index = std::string::npos;
   std::vector<Point3d> points;
 
-  Point3d get_point(int idx) {
+  Point3d get_point(int idx) const {
     if (idx < 0) {
       idx += static_cast<int>(points.size());
     } else {
@@ -55,7 +58,7 @@ struct ObjFileState {
   }
 
   void on_usemtl(std::string_view s) {
-    const auto it = material_indexes.find(s);
+    const auto it = material_indexes.find(trim_spaces(s));
     if (it == material_indexes.end())
       throw std::runtime_error{"Material "s + s + "is not found"};
     cur_mat_index = it->second;
